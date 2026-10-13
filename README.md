@@ -1,83 +1,130 @@
 # Eventora - Full-Stack Event Booking Platform
 
-Eventora is a full-stack MERN application that allows users to seamlessly browse, register, and pay natively without any third party tools. It features an administrative dashboard for event organizers to create and manage free and paid events. All bookings can be managed manually by an admin to handle payments directly.
-
-## Features
-- **User Authentication**: Secure login & registration with JWT and bcrypt.
-- **2FA OTP Verification**: 
-  - Mandatory Email OTP to activate your account upon Registration (or delayed login attempts).
-  - Mandatory Email OTP to finalize and secure event ticket booking.
-- **Role-Based Access**: 
-  - **Admin**: Create, edit, and delete events. Confirm and reject all incoming booking requests, mark them as 'Paid' or 'Not Paid'. Access is strictly locked to database-flagged users only.
-  - **User**: Browse events, submit ticket booking requests via OTP, view personal dashboard pending status, and cancel bookings.
-- **Event Management**: Create free and paid events with detailed descriptions, external image URLs, dates, categories, and seating capacity.
-- **Smart Booking System**:
-  - Mandatory 2FA OTP to authorize a booking request.
-  - All booking requests (both free and paid) enter a secure 'Pending' queue for Admin verification.
-  - Seat availability accurately updates and securely validates against overbooking logic.
-- **Admin Analytics Dashboard**: Track live data such as Pending Requests, Total Revenue, and Total Confirmed Paid Clients directly from the admin panel.
-- **Email Notifications**: Automated email delivery upon successful booking confirmation using Nodemailer.
-- **Sleek UI/UX**: Built entirely with React, Tailwind CSS, and polished with micro-interactions.
+A comprehensive, production-grade MERN (MongoDB, Express, React, Node.js) application designed for modern event discovery, automated booking management, and administrative oversight. Both the frontend and backend are housed within this single unified repository.
 
 ---
 
-## 🚀 Setup Instructions
+## ⚡ Quick Evaluation & Testing Guide
 
-### Prerequisites
-Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
-You will also need a MongoDB database (e.g., [MongoDB Atlas Free Tier](https://www.mongodb.com/cloud/atlas/register)).
+For evaluators and reviewers, you can quickly spin up both the frontend and backend and test with pre-seeded demo accounts without manual registration or OTP setup.
 
-### 1. Environment Variables Configuration
-Navigate to `server/.env` and fill in the necessary keys:
+### 🔑 Pre-Seeded Demo Credentials
+After running the seed command (`npm run seed`), use the following credentials to test all roles immediately:
+
+| Role | Email | Password | Access / Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@eventora.com` | `password123` | Full access to Admin Dashboard, create/edit/delete events, approve/reject bookings, mark payments as Paid/Unpaid, live revenue analytics. |
+| **User** | `user@eventora.com` | `password123` | Browse events, view seats, submit booking requests, view personal ticket status in User Dashboard, cancel bookings. |
+
+---
+
+## 🚀 Getting Started in 3 Steps
+
+### 1. Prerequisites
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [MongoDB](https://www.mongodb.com/) (Local instance running at `mongodb://localhost:27017` or free [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) cluster)
+
+### 2. Configure Environment (`server/.env`)
+Copy the example environment configuration into `server/.env`:
+```bash
+cp server/.env.example server/.env
+```
+Fill in your configuration in `server/.env`:
 ```env
-MONGO_URI=your_mongodb_connection_string
+MONGO_URI=mongodb://localhost:27017/eventora
 JWT_SECRET=supersecretjwtkey_eventora
-EMAIL_USER=your_gmail_address
+EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_gmail_app_password
 PORT=5000
 ```
-> **Note**: For `EMAIL_PASS`, you need to generate an "App Password" from your Google Account settings, standard passwords won't work due to 2FA.
+> **Note**: For local evaluation, if `MONGO_URI` is left empty, the server automatically defaults to `mongodb://localhost:27017/eventora`.
 
-### 2. Run from Outer Folder (Single Terminal)
-You can now manage both backend and frontend from the project root:
+### 3. Install & Run (Single Terminal from Root)
+From the root repository folder, run:
 
 ```bash
-# from Eventora root
-npm install
+# Install dependencies for both root, server, and client
 npm run install:all
+
+# Seed dummy database data (creates 10 verified users, 6 sample events, and demo bookings)
+npm run seed
+
+# Start both Backend (port 5000) and Frontend (Vite) simultaneously
 npm run dev
 ```
 
-- `npm run dev` starts both `server` and `client` together using `concurrently`.
-- `npm run dev:all` installs dependencies (server + client) and starts both in one command.
-- `npm run start` runs backend `start` + frontend `preview` together.
+- **Frontend Application**: [http://localhost:5173](http://localhost:5173)
+- **Backend API**: [http://localhost:5000](http://localhost:5000)
 
-### 3. Install Dependencies
-Open two separate terminals for the backend and frontend.
+---
 
-**Backend Terminal:**
-```bash
-cd server
-npm install --legacy-peer-deps
+## 📂 Project Architecture (Monorepo Structure)
+
+This single repository contains both the client and server applications:
+
+```
+Eventoraa/
+├── client/                     # Frontend (React 18 + Vite + Tailwind CSS)
+│   ├── src/
+│   │   ├── components/         # Reusable UI elements (Navbar, Modals, etc.)
+│   │   ├── context/            # AuthContext (JWT & state management)
+│   │   ├── pages/              # Home, AdminDashboard, UserDashboard, EventDetail, etc.
+│   │   └── utils/              # Axios instance configured with interceptors
+│   ├── package.json
+│   └── vite.config.js
+├── server/                     # Backend (Node.js + Express + Mongoose)
+│   ├── controllers/            # authController, eventController, bookingController
+│   ├── middleware/             # JWT auth & admin authorization
+│   ├── models/                 # User, Event, Booking, OTP schemas
+│   ├── routes/                 # Express API routes
+│   ├── utils/                  # Nodemailer email & OTP delivery
+│   ├── seed.js                 # Database populator script
+│   └── server.js               # Main Express entrypoint
+├── Eventora_Postman_Collection.json # Complete API testing collection
+├── dfd.png                     # Data Flow Diagram (DFD)
+├── fc.png                      # Architecture Flowchart
+├── package.json                # Root package with unified concurrently scripts
+└── SETUP_GUIDE.md              # Detailed step-by-step setup walkthrough
 ```
 
-**Frontend Terminal:**
-```bash
-cd client
-npm install
-```
+---
 
-### 4. Run the Application Local Servers
-**Run Backend:**
-```bash
-cd server
-npm run dev
-```
-*(Server will run on `http://localhost:5000`)*
+## ✨ Core Features
 
-**Run Frontend:**
-```bash
-cd client
-npm run dev
-```
-*(Client will run on a local port provided by Vite, typically `http://localhost:5173`)*
+- **Authentication & Authorization**:
+  - Secure signup and login with hashed passwords (`bcryptjs`) and signed JWT tokens (`jsonwebtoken`).
+  - Strict role-based route protection for standard Users and Administrators.
+- **2FA OTP Verification**:
+  - Mandatory Email OTP to activate your account upon registration.
+  - Mandatory Email OTP to authorize and finalize event ticket booking requests.
+- **Event Lifecycle Management**:
+  - Event organizers (Admin) can create, update, and delete events with high-resolution images, dates, seating limits, and ticket prices.
+  - Dynamic seat countdown ensuring no overbooking occurs.
+- **Admin Command Center**:
+  - Review all incoming booking requests in a real-time 'Pending' queue.
+  - Approve, reject, and confirm paid/unpaid statuses.
+  - Live analytics for total revenue, confirmed attendees, and pending inquiries.
+- **User Dashboard**:
+  - View all personal bookings with statuses (`pending`, `confirmed`, `cancelled`).
+  - Self-service booking cancellation.
+- **Automated Email Notifications**:
+  - Instant dispatch of booking confirmations and one-time passwords via Nodemailer.
+
+---
+
+## 📮 API Documentation & Postman Collection
+
+A complete, pre-configured Postman collection is included directly in the root directory:
+👉 **`Eventora_Postman_Collection.json`**
+
+### How to use:
+1. Open [Postman](https://www.postman.com/) and click **Import**.
+2. Select `Eventora_Postman_Collection.json`.
+3. The collection has pre-configured environment variables that automatically capture your JWT token on login and pass it to protected endpoints.
+
+---
+
+## 📊 System Architecture & Diagrams
+
+- **Data Flow Diagram (DFD)**: See [`dfd.png`](./dfd.png) for data pipeline and role interactions.
+- **Flowchart**: See [`fc.png`](./fc.png) for user registration, event booking, and approval workflows.
